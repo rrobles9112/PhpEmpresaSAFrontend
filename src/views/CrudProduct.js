@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 
-import { Row, Col, Layout, Table, Button, Tooltip } from "antd";
-import { useDispatch, useTrackedState } from "./../store/index";
+import {Row, Col, Layout, Table, Button, Tooltip} from "antd";
+import {useDispatch, useTrackedState} from "./../store/index";
 import ModalAddEdit from "./../components/ModalCreateEdit";
 import {
     EditOutlined,
@@ -89,8 +89,8 @@ function CrudProduct() {
                         </Tooltip>
                         <Tooltip title="Generar Venta">
                             <DollarOutlined
-                                onClick={()=>{
-                                    dispatch({type:"SELL_PRODUCT", payload:{id:record.id,stock:record.stock}})
+                                onClick={() => {
+                                    dispatch({type: "SELL_PRODUCT", payload: {id: record.id, stock: record.stock}})
                                 }}
                                 style={{
                                     fontSize: "20px",
@@ -103,7 +103,7 @@ function CrudProduct() {
                             <DeleteOutlined
                                 onClick={() => {
                                     console.log(record);
-                                    dispatch({ type: "DELETE_PRODUCT", payload: record.id });
+                                    dispatch({type: "DELETE_PRODUCT", payload: record.id});
                                 }}
                                 style={{
                                     fontSize: "20px",
@@ -120,41 +120,52 @@ function CrudProduct() {
 
     const openModal = (event) => {
         console.log(state.visible);
-        dispatch({ type: "VISIBLE_MODAL" });
+        dispatch({type: "VISIBLE_MODAL"});
     };
 
     const fetchProducts = () => {
-        dispatch({ type: "FETCH_PRODUCTS" });
+        dispatch({type: "FETCH_PRODUCTS", payload:{page:1}});
     };
 
     useEffect(() => {
-        console.log("State pending", state.pending);
+        console.log("pagination=", state.pagination);
         fetchProducts();
     }, []);
 
     return (
         <>
-            <div className="Row">
-                <Button onClick={openModal} className="my-5" type="primary">
-                    Crear Producto
-                </Button>
-            </div>
-            <Layout.Content className="container-fluid my-5">
-                <div className="container-xl mw-100">
-                    <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
-                        <Col className="gutter-row mb-3" span={24}>
-                            <Table
-                                columns={columns}
-                                loading={state.pending}
-                                dataSource={state.products}
-                            ></Table>
-                        </Col>
-                    </Row>
-                </div>
-            </Layout.Content>
-            <ModalAddEdit />
-        </>
-    );
+        <div className="Row">
+            <Button onClick={openModal} className="my-5" type="primary">
+                Crear Producto
+            </Button>
+        </div>
+        <Layout.Content className="container-fluid my-5">
+            <div className="container-xl mw-100">
+                <Row gutter={{xs: 8, sm: 16, md: 24, lg: 32}}>
+                    <Col className="gutter-row mb-3" span={24}>
+                        <Table
+                            columns={columns}
+                            pagination={{
+                                pageSize: state.pagination.perPage,
+                                total: state.pagination.totalCount,
+                                onChange: (page, pageSize) =>{
+                                    console.log("Pagination => onChange: ", page, pageSize)
+                                    dispatch({type: "FETCH_PRODUCTS", payload:{page:page}});
+                                }
+
+
+                        }}
+                        loading={state.pending}
+                         dataSource={state.products}
+                    />
+                </Col>
+            </Row>
+        </div>
+        </Layout.Content>
+    <ModalAddEdit/>
+</>
+)
+    ;
 }
 
 export default React.memo(CrudProduct);

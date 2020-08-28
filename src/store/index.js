@@ -8,6 +8,7 @@ const initialState = {
   todoIds: [],
   products: [],
   todoMap: {},
+  pagination:{},
   visible: false,
   query: "",
   pending: true,
@@ -43,6 +44,12 @@ const reducer = (state, action) => {
         ...state,
         pending: false,
         products: action.products,
+      };
+      case "PAGINATION_FETCHED":
+      return {
+        ...state,
+        pending: false,
+        pagination: action.pagination,
       };
     case "API_OK":
       return {
@@ -97,11 +104,15 @@ const reducer = (state, action) => {
 const asyncActionHandlers = {
   FETCH_PRODUCTS: ({ dispatch }) => async (action) => {
     try {
-      const response = await fetch(
-        `http://localhost:8080/products?sort=created_date`
+      let { page } = {
+        ...action.payload,
+      };
+      const response = await axios.get(
+        `http://localhost:8080/products?page=${page}`
       );
-      const data = await response.json();
-      dispatch({ type: "PRODUCT_FETCHED", products: data });
+      const {products, _meta} = await response.data;
+      dispatch({ type: "PRODUCT_FETCHED", products: products });
+      dispatch({ type: "PAGINATION_FETCHED", pagination: _meta });
     } catch (error) {
       dispatch({ type: "FAILED", error });
     }
