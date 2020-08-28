@@ -1,6 +1,7 @@
 import { useReducerAsync } from "use-reducer-async";
 import { createContainer } from "react-tracked";
 import axios from "axios";
+import moment from "moment";
 import { notification } from "antd";
 
 const initialState = {
@@ -13,12 +14,12 @@ const initialState = {
   error: null,
 };
 
-const openNotificationWithIcon = (type) => {
+const openNotificationWithIcon = (type, msg) => {
   notification[type]({
     message: "Producto",
     description:
       type === "success"
-        ? "Producto creado"
+        ? msg
         : "Error de comunicacion con la DB",
   });
 };
@@ -118,7 +119,7 @@ const asyncActionHandlers = {
 
       const data = await response;
       if (data.status == 201) {
-        openNotificationWithIcon("success");
+        openNotificationWithIcon("success","Producto guardado ok");
         dispatch({ type: "VISIBLE_MODAL" });
         const response = await fetch(
           `http://localhost:8080/products?sort=created_date`
@@ -149,7 +150,7 @@ const asyncActionHandlers = {
 
       const data = await response;
       if (data.status == 200) {
-        openNotificationWithIcon("success");
+        openNotificationWithIcon("success","Producto editado ok");
         const response = await fetch(
             `http://localhost:8080/products?sort=created_date`
         );
@@ -178,7 +179,7 @@ const asyncActionHandlers = {
 
       const data = await response;
       if (data.status === 204) {
-        openNotificationWithIcon("success");
+        openNotificationWithIcon("success","Producto eliminado OK");
         const response = await fetch(
           `http://localhost:8080/products?sort=created_date`
         );
@@ -198,17 +199,19 @@ const asyncActionHandlers = {
   SELL_PRODUCT: ({ dispatch, getState }) => async (action) => {
     try {
       dispatch({ type: "STARTED" });
-      let { name, reference, price, weight, category, stock, id } = {
+      let { stock, id } = {
         ...action.payload,
       };
+
+      let dateSell = new moment().format("YYYY-MM-DD HH:mm:ss");
       const response = await axios.patch(
         `http://localhost:8080/products/${id}`,
-        `stock=${stock - 1}`
+        `stock=${stock - 1}&date_last_sell=${dateSell}`
       );
 
       const data = await response;
       if (data.status == 200) {
-        openNotificationWithIcon("success");
+        openNotificationWithIcon("success", `Nueva Venta Realizada`);
         const response = await fetch(
           `http://localhost:8080/products?sort_field=created_date`
         );

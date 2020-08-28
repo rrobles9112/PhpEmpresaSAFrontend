@@ -20,6 +20,7 @@
     "react-router-dom": "5.2.0",
     "react-scripts": "3.4.3",
     "react-tracked": "^1.4.1",
+    "moment": "^2.27.0",
     "use-reducer-async": "^2.0.1"
   },
   "scripts": {
