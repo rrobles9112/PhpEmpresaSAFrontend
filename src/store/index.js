@@ -94,24 +94,6 @@ const reducer = (state, action) => {
 };
 
 const asyncActionHandlers = {
-  CREATE_TODO: ({ dispatch }) => async (action) => {
-    try {
-      dispatch({ type: "STARTED" });
-      const response = await fetch(`https://reqres.in/api/todos?delay=1`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ title: action.title }),
-      });
-      const data = await response.json();
-      if (typeof data.id !== "string") throw new Error("no id");
-      if (typeof data.title !== "string") throw new Error("no title");
-      dispatch({ type: "TODO_CREATED", todo: data });
-    } catch (error) {
-      dispatch({ type: "FAILED", error });
-    }
-  },
   FETCH_PRODUCTS: ({ dispatch }) => async (action) => {
     try {
       const response = await fetch(
@@ -183,38 +165,31 @@ const asyncActionHandlers = {
       dispatch({ type: "FAILED", error });
     }
   },
-  TOGGLE_TODO: ({ dispatch, getState }) => async (action) => {
+
+  SELL_PRODUCT: ({ dispatch, getState }) => async (action) => {
     try {
       dispatch({ type: "STARTED" });
-      const todo = getState().todoMap[action.id];
-      const body = {
-        ...todo,
-        completed: !todo.completed,
+      let { name, reference, price, weight, category, stock, id } = {
+        ...action.payload,
       };
-      const response = await fetch(
-        `https://reqres.in/api/todos/${action.id}?delay=1`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(body),
-        }
+      const response = await axios.patch(
+        `http://localhost:8080/products/${id}`,
+        `stock=${stock - 1}`
       );
-      const data = await response.json();
-      if (typeof data.title !== "string") throw new Error("no title");
-      dispatch({ type: "TODO_UPDATED", todo: { ...data, id: action.id } });
-    } catch (error) {
-      dispatch({ type: "FAILED", error });
-    }
-  },
-  DELETE_TODO: ({ dispatch }) => async (action) => {
-    try {
-      dispatch({ type: "STARTED" });
-      await fetch(`https://reqres.in/api/todos/${action.id}?delay=1`, {
-        method: "DELETE",
-      });
-      dispatch({ type: "TODO_DELETED", id: action.id });
+
+      const data = await response;
+      if (data.status == 200) {
+        openNotificationWithIcon("success");
+        const response = await fetch(
+          `http://localhost:8080/products?sort_field=created_date`
+        );
+        const data = await response.json();
+        dispatch({ type: "PRODUCT_FETCHED", products: data });
+        dispatch({ type: "API_OK" });
+      } else {
+        openNotificationWithIcon("error");
+        dispatch({ type: "API_OK" });
+      }
     } catch (error) {
       dispatch({ type: "FAILED", error });
     }

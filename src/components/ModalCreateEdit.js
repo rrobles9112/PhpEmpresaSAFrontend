@@ -43,11 +43,18 @@ function ModalCreateEdit(props) {
     dispatch({ type: "VISIBLE_MODAL" });
   };
   useEffect(() => {
-    console.log(state.visible);
+    console.log("mounted");
+    if (props.edit === true) {
+      form.setFieldsValue({
+        name: props.record.name,
+      });
+    }
   });
+
+
   return (
     <Modal
-      title="Crear Producto"
+      title={`${props.edit === true ? "Edit" : "Crear"} Producto`}
       visible={state.visible}
       onOk={handleOk}
       footer={null}
