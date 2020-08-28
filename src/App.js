@@ -31,7 +31,7 @@ export default function RouterApp() {
                     <Route exact path="/">
                         <CrudProduct/>
                     </Route>
-                    <Route exact path="/edit">
+                    <Route exact path="/edit/:id">
                         <EditProduct />
                     </Route>
                 </Switch>

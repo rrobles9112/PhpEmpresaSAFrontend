@@ -1,36 +1,52 @@
-import React from "react";
+import React, {useEffect} from "react";
 import {Link} from "react-router-dom";
-
+import { useParams} from "react-router";
 import {  Form, Input, Button, Select } from "antd";
 import { useDispatch, useTrackedState } from "./../store/index";
 
 
-function ModalCreateEdit(props) {
+function EditProduct(props) {
     const Option = Select.Option;
     const dispatch = useDispatch();
     const state = useTrackedState();
     const [form] = Form.useForm();
 
     const layout = {
-        labelCol: { span: 8 },
-        wrapperCol: { span: 16 },
+        labelCol: { span: 4 },
+        wrapperCol: { span: 10 },
     };
     const tailLayout = {
-        wrapperCol: { offset: 8, span: 16 },
+        wrapperCol: { offset: 4, span: 1 },
     };
-
+    const {id} = useParams();
     const onFinish = (values) => {
         console.log("Success:", values);
-        dispatch({ type: "SAVE_PRODUCTS", payload: values });
+        dispatch({ type: "EDIT_PRODUCTS", payload: {...values,id:id} });
     };
 
     const onFinishFailed = (errorInfo) => {
         console.log("Failed:", errorInfo);
     };
+        useEffect(()=>{
+            //const record = JSON.parse(props.location.state.data);
+            let [filteredProduct] = state.products.filter(el=>el.id===parseInt(id));
+
+            console.log(filteredProduct.name && filteredProduct.name)
+                form.setFieldsValue({
+                    name: filteredProduct.name && filteredProduct.name,
+                    reference: filteredProduct.reference && filteredProduct.reference,
+                    price: filteredProduct.price && filteredProduct.price,
+                    category: filteredProduct.category && filteredProduct.category,
+                    weight: filteredProduct.weight && filteredProduct.weight,
+                    stock: filteredProduct.stock && filteredProduct.stock,
+
+                })
+
+        },[])
     return (
 
         <div className="container my-5">
-            <div className="row justify-content-center ">
+            <div className="row justify-content-center">
                 <div className="col-12 my-5">
                     <Link to='/'>
                         <Button type='primary'> Ir Atras</Button>
@@ -119,4 +135,4 @@ function ModalCreateEdit(props) {
     );
 }
 
-export default ModalCreateEdit;
+export default React.memo(EditProduct);

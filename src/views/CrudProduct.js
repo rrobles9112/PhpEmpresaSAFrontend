@@ -10,7 +10,7 @@ import {
 } from "@ant-design/icons";
 import {Link} from "react-router-dom";
 
-function App() {
+function CrudProduct() {
     const dispatch = useDispatch();
     const state = useTrackedState();
 
@@ -74,7 +74,9 @@ function App() {
                 return (
                     <div className="text-info">
                         <Tooltip title="Editar Producto">
-                            <Link to="/edit">
+                            <Link to={{
+                                pathname: `/edit/${record.id}`,
+                            }}>
                                 <EditOutlined
                                     style={{
                                         fontSize: "20px",
@@ -87,6 +89,9 @@ function App() {
                         </Tooltip>
                         <Tooltip title="Generar Venta">
                             <DollarOutlined
+                                onClick={()=>{
+                                    dispatch({type:"SELL_PRODUCT", payload:{id:record.id,stock:record.stock}})
+                                }}
                                 style={{
                                     fontSize: "20px",
                                     cursor: "pointer",
@@ -152,4 +157,4 @@ function App() {
     );
 }
 
-export default React.memo(App);
+export default React.memo(CrudProduct);

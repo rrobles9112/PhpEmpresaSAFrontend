@@ -136,6 +136,35 @@ const asyncActionHandlers = {
       dispatch({ type: "FAILED", error });
     }
   },
+  EDIT_PRODUCTS: ({ dispatch }) => async (action) => {
+    try {
+      dispatch({ type: "STARTED" });
+      let { name, reference, price, weight, category, stock, id } = {
+        ...action.payload,
+      };
+      const response = await axios.patch(
+          `http://localhost:8080/products/${id}`,
+          `name=${name}&reference=${reference}&price=${price}&weight=${weight}&category=${category}&stock=${stock}`
+      );
+
+      const data = await response;
+      if (data.status == 200) {
+        openNotificationWithIcon("success");
+        const response = await fetch(
+            `http://localhost:8080/products?sort=created_date`
+        );
+        const data = await response.json();
+        dispatch({ type: "PRODUCT_FETCHED", products: data });
+        dispatch({ type: "API_OK" });
+      } else {
+        openNotificationWithIcon("error");
+        dispatch({ type: "API_OK" });
+      }
+    } catch (error) {
+      console.log("data error catch", error);
+      dispatch({ type: "FAILED", error });
+    }
+  },
   DELETE_PRODUCT: ({ dispatch }) => async (action) => {
     try {
       dispatch({ type: "STARTED" });
